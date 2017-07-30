@@ -12,7 +12,8 @@ type AtndClient struct {
 }
 
 func newAtndClient() *AtndClient {
-	return &AtndClient{}
+	client := AtndClient{}
+	return &client
 }
 
 func (c *AtndClient) queryEvent(id string, key string) (*Event, error) {
@@ -20,7 +21,7 @@ func (c *AtndClient) queryEvent(id string, key string) (*Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	event := Event{}
+	event := &Event{}
 	event.Title = doc.Find("#events h1>a").First().Text()
 	event.Limit, _ = strconv.Atoi(doc.Find("#members-info>h3>span").First().Text())
 	members := []Member{}
@@ -31,5 +32,5 @@ func (c *AtndClient) queryEvent(id string, key string) (*Event, error) {
 		members = append(members, member)
 	})
 	event.Members = members
-	return &event, nil
+	return event, nil
 }

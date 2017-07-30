@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"log"
+
 	"git.heroku.com/dodosoft-api/events"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -19,6 +21,7 @@ func main() {
 		id := context.Param("id")
 		event, err := events.QueryEvent(id)
 		if err != nil {
+			log.Println(err)
 			return context.String(500, "can't get event.")
 		}
 		return context.JSON(200, event)

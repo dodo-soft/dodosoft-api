@@ -2,6 +2,7 @@ package events
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -17,6 +18,7 @@ type eventInfo struct {
 }
 
 var client *AtndClient
+var eventCache *cache
 
 var events = []eventInfo{
 	eventInfo{"89931", "ce7eaf8216f555dec0471990c88750b3"},
@@ -24,6 +26,7 @@ var events = []eventInfo{
 
 func init() {
 	client = newAtndClient()
+	eventCache = newCache()
 }
 
 type Member struct {
@@ -44,5 +47,25 @@ func QueryEvent(id string) (*Event, error) {
 		return nil, errors.New("invalid id:" + id)
 	}
 	e := events[index]
-	return client.queryEvent(e.id, e.key)
+
+	// get event from cache
+	var event *Event
+	eventFromCache := eventCache.get(id)
+	if eventFromCache != nil {
+		e := (*eventFromCache).(Event)
+		event = &e
+	}
+	if event != nil {
+		fmt.Println(event)
+		return event, nil
+	}
+	// query to the atnd server
+	event, err = client.queryEvent(e.id, e.key)
+	if err != nil {
+		return nil, err
+	}
+	// store to the cache
+	eventCache.Put(id, *event)
+
+	return event, nil
 }
